@@ -1,0 +1,24 @@
+package br.edu.up.rgm33436886.model
+
+import android.text.TextUtils
+import java.util.Date
+
+data class Rating(
+    var userId: String? = null,
+    var userName: String? = null,
+    var rating: Double = 0.toDouble(),
+    var text: String? = null,
+    @ServerTimestamp var timestamp: Date? = null
+) {
+
+    constructor(user: FirebaseUser, rating: Double, text: String) : this() {
+        this.userId = user.uid
+        this.userName = user.displayName
+        if (TextUtils.isEmpty(this.userName)) {
+            this.userName = user.email
+        }
+
+        this.rating = rating
+        this.text = text
+    }
+}
