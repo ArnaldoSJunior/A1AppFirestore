@@ -1,6 +1,11 @@
 package br.edu.up.rgm33436886.util
 
 import android.content.Context
+import androidx.startup.Initializer
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.BuildConfig
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 class AuthInitializer : Initializer<FirebaseAuth> {
     // The host '10.0.2.2' is a special IP address to let the

@@ -1,5 +1,7 @@
 package br.edu.up.rgm33436886.model
 
+import com.google.firebase.firestore.IgnoreExtraProperties
+
 @IgnoreExtraProperties
 data class Restaurant(
     var name: String? = null,

@@ -1,5 +1,6 @@
 package br.edu.up.rgm33436886.util
 
+import br.edu.up.rgm33436886.model.Rating
 import java.util.ArrayList
 import java.util.Random
 import java.util.UUID

@@ -1,5 +1,14 @@
 pluginManagement {
     repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+/*
+pluginManagement {
+    repositories {
         google {
             content {
                 includeGroupByRegex("com\\.android.*")
@@ -18,7 +27,7 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-
+*/
 rootProject.name = "AppFirestore33436886"
 include(":app")
  

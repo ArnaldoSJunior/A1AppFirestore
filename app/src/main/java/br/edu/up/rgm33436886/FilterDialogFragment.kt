@@ -1,84 +1,155 @@
 package br.edu.up.rgm33436886
 
 import android.content.Context
-import android.text.TextUtils
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.DialogFragment
+import br.edu.up.rgm33436886.databinding.DialogFiltersBinding
+import br.edu.up.rgm33436886.model.Restaurant
+import com.google.firebase.firestore.Query
 
-class Filters {
+class FilterDialogFragment : DialogFragment() {
 
-    var category: String? = null
-    var city: String? = null
-    var price = -1
-    var sortBy: String? = null
-    var sortDirection: Query.Direction = Query.Direction.DESCENDING
+    private var _binding: DialogFiltersBinding? = null
+    private val binding get() = _binding!!
+    private var filterListener: FilterListener? = null
 
-    fun hasCategory(): Boolean {
-        return !TextUtils.isEmpty(category)
-    }
-
-    fun hasCity(): Boolean {
-        return !TextUtils.isEmpty(city)
-    }
-
-    fun hasPrice(): Boolean {
-        return price > 0
-    }
-
-    fun hasSortBy(): Boolean {
-        return !TextUtils.isEmpty(sortBy)
-    }
-
-    fun getSearchDescription(context: Context): String {
-        val desc = StringBuilder()
-
-        if (category == null && city == null) {
-            desc.append("<b>")
-            desc.append(context.getString(R.string.all_restaurants))
-            desc.append("</b>")
+    private val selectedCategory: String?
+        get() {
+            val selected = binding.spinnerCategory.selectedItem as String
+            return if (getString(R.string.value_any_category) == selected) {
+                null
+            } else {
+                selected
+            }
         }
 
-        if (category != null) {
-            desc.append("<b>")
-            desc.append(category)
-            desc.append("</b>")
+    private val selectedCity: String?
+        get() {
+            val selected = binding.spinnerCity.selectedItem as String
+            return if (getString(R.string.value_any_city) == selected) {
+                null
+            } else {
+                selected
+            }
         }
 
-        if (category != null && city != null) {
-            desc.append(" in ")
+    private val selectedPrice: Int
+        get() {
+            val selected = binding.spinnerPrice.selectedItem as String
+            return when (selected) {
+                getString(R.string.price_1) -> 1
+                getString(R.string.price_2) -> 2
+                getString(R.string.price_3) -> 3
+                else -> -1
+            }
         }
 
-        if (city != null) {
-            desc.append("<b>")
-            desc.append(city)
-            desc.append("</b>")
+    private val selectedSortBy: String?
+        get() {
+            val selected = binding.spinnerSort.selectedItem as String
+            if (getString(R.string.sort_by_rating) == selected) {
+                return Restaurant.FIELD_AVG_RATING
+            }
+            if (getString(R.string.sort_by_price) == selected) {
+                return Restaurant.FIELD_PRICE
+            }
+            return if (getString(R.string.sort_by_popularity) == selected) {
+                Restaurant.FIELD_POPULARITY
+            } else {
+                null
+            }
         }
 
-        if (price > 0) {
-            desc.append(" for ")
-            desc.append("<b>")
-            desc.append(RestaurantUtil.getPriceString(price))
-            desc.append("</b>")
+    private val sortDirection: Query.Direction
+        get() {
+            val selected = binding.spinnerSort.selectedItem as String
+            if (getString(R.string.sort_by_rating) == selected) {
+                return Query.Direction.DESCENDING
+            }
+            if (getString(R.string.sort_by_price) == selected) {
+                return Query.Direction.ASCENDING
+            }
+            return if (getString(R.string.sort_by_popularity) == selected) {
+                Query.Direction.DESCENDING
+            } else {
+                Query.Direction.DESCENDING
+            }
         }
 
-        return desc.toString()
+    val filters: Filters
+        get() {
+            val filters = Filters()
+
+            filters.category = selectedCategory
+            filters.city = selectedCity
+            filters.price = selectedPrice
+            filters.sortBy = selectedSortBy
+            filters.sortDirection = sortDirection
+
+            return filters
+        }
+
+    interface FilterListener {
+
+        fun onFilter(filters: Filters)
     }
 
-    fun getOrderDescription(context: Context): String {
-        return when (sortBy) {
-            Restaurant.FIELD_PRICE -> context.getString(R.string.sorted_by_price)
-            Restaurant.FIELD_POPULARITY -> context.getString(R.string.sorted_by_popularity)
-            else -> context.getString(R.string.sorted_by_rating)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = DialogFiltersBinding.inflate(inflater, container, false)
+
+        binding.buttonSearch.setOnClickListener { onSearchClicked() }
+        binding.buttonCancel.setOnClickListener { onCancelClicked() }
+
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        if (parentFragment is FilterListener) {
+            filterListener = parentFragment as FilterListener
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        dialog?.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT)
+    }
+
+    private fun onSearchClicked() {
+        filterListener?.onFilter(filters)
+        dismiss()
+    }
+
+    private fun onCancelClicked() {
+        dismiss()
+    }
+
+    fun resetFilters() {
+        _binding?.let {
+            it.spinnerCategory.setSelection(0)
+            it.spinnerCity.setSelection(0)
+            it.spinnerPrice.setSelection(0)
+            it.spinnerSort.setSelection(0)
         }
     }
 
     companion object {
 
-        val default: Filters
-            get() {
-                val filters = Filters()
-                filters.sortBy = Restaurant.FIELD_AVG_RATING
-                filters.sortDirection = Query.Direction.DESCENDING
-
-                return filters
-            }
+        const val TAG = "FilterDialog"
     }
 }

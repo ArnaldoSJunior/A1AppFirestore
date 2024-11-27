@@ -1,6 +1,11 @@
 package br.edu.up.rgm33436886.util
 
 import android.content.Context
+import androidx.startup.Initializer
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.BuildConfig
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 class FirestoreInitializer : Initializer<FirebaseFirestore> {
 

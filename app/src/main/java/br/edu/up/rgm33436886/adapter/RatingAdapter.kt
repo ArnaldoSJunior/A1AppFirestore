@@ -2,6 +2,11 @@ package br.edu.up.rgm33436886.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
+import br.edu.up.rgm33436886.databinding.ItemRatingBinding
+import br.edu.up.rgm33436886.model.Rating
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.toObject
 import java.text.SimpleDateFormat
 import java.util.Locale
 

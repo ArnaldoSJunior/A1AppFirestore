@@ -2,6 +2,9 @@ package br.edu.up.rgm33436886
 
 import android.content.Context
 import android.text.TextUtils
+import br.edu.up.rgm33436886.model.Restaurant
+import br.edu.up.rgm33436886.util.RestaurantUtil
+import com.google.firebase.firestore.Query
 
 class Filters {
 

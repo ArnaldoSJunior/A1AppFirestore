@@ -2,6 +2,15 @@ package br.edu.up.rgm33436886.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
+import br.edu.up.rgm33436886.R
+import br.edu.up.rgm33436886.databinding.ItemRestaurantBinding
+import br.edu.up.rgm33436886.model.Restaurant
+import br.edu.up.rgm33436886.util.RestaurantUtil
+import com.bumptech.glide.Glide
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.ktx.toObject
 
 open class RestaurantAdapter(query: Query, private val listener: OnRestaurantSelectedListener) :
     FirestoreAdapter<RestaurantAdapter.ViewHolder>(query) {
@@ -12,8 +21,9 @@ open class RestaurantAdapter(query: Query, private val listener: OnRestaurantSel
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(ItemRestaurantBinding.inflate(
-            LayoutInflater.from(parent.context), parent, false))
+        return ViewHolder(
+            ItemRestaurantBinding.inflate(
+                LayoutInflater.from(parent.context), parent, false))
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {

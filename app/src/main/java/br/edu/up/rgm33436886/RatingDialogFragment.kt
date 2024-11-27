@@ -1,5 +1,15 @@
 package br.edu.up.rgm33436886
 
+import android.content.Context
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.DialogFragment
+import br.edu.up.rgm33436886.databinding.DialogRatingBinding
+import br.edu.up.rgm33436886.model.Rating
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 
 /**

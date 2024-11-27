@@ -1,6 +1,8 @@
 package br.edu.up.rgm33436886.util
 
 import android.content.Context
+import br.edu.up.rgm33436886.R
+import br.edu.up.rgm33436886.model.Restaurant
 import java.util.Arrays
 import java.util.Locale
 import java.util.Random
@@ -89,3 +91,4 @@ object RestaurantUtil {
         return array[ind]
     }
 }
+

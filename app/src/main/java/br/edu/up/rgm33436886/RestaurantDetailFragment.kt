@@ -1,19 +1,32 @@
 package br.edu.up.rgm33436886
 
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import br.edu.up.rgm33436886.adapter.RatingAdapter
+import br.edu.up.rgm33436886.databinding.FragmentRestaurantDetailBinding
+import br.edu.up.rgm33436886.model.Rating
+import br.edu.up.rgm33436886.model.Restaurant
+import br.edu.up.rgm33436886.util.RestaurantUtil
+import com.bumptech.glide.Glide
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.core.View
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 
 
@@ -30,12 +43,12 @@ class RestaurantDetailFragment : Fragment(),
 
     private var restaurantRegistration: ListenerRegistration? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): android.view.View? {
         binding = FragmentRestaurantDetailBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: android.view.View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         // Get restaurant ID from extras
@@ -57,11 +70,11 @@ class RestaurantDetailFragment : Fragment(),
         ratingAdapter = object : RatingAdapter(ratingsQuery) {
             override fun onDataChanged() {
                 if (itemCount == 0) {
-                    binding.recyclerRatings.visibility = View.GONE
-                    binding.viewEmptyRatings.visibility = View.VISIBLE
+                    binding.recyclerRatings.visibility = android.view.View.GONE
+                    binding.viewEmptyRatings.visibility = android.view.View.VISIBLE
                 } else {
-                    binding.recyclerRatings.visibility = View.VISIBLE
-                    binding.viewEmptyRatings.visibility = View.GONE
+                    binding.recyclerRatings.visibility = android.view.View.VISIBLE
+                    binding.viewEmptyRatings.visibility = android.view.View.GONE
                 }
             }
         }
@@ -151,8 +164,31 @@ class RestaurantDetailFragment : Fragment(),
     }
 
     private fun addRating(restaurantRef: DocumentReference, rating: Rating): Task<Void> {
-        // TODO(developer): Implement
-        return Tasks.forException(Exception("not yet implemented"))
+        // Create reference for new rating, for use inside the transaction
+        val ratingRef = restaurantRef.collection("ratings").document()
+
+        // In a transaction, add the new rating and update the aggregate totals
+        return firestore.runTransaction { transaction ->
+            val restaurant = transaction.get(restaurantRef).toObject<Restaurant>()
+                ?: throw Exception("Restaurant not found at ${restaurantRef.path}")
+
+            // Compute new number of ratings
+            val newNumRatings = restaurant.numRatings + 1
+
+            // Compute new average rating
+            val oldRatingTotal = restaurant.avgRating * restaurant.numRatings
+            val newAvgRating = (oldRatingTotal + rating.rating) / newNumRatings
+
+            // Set new restaurant info
+            restaurant.numRatings = newNumRatings
+            restaurant.avgRating = newAvgRating
+
+            // Commit to Firestore
+            transaction.set(restaurantRef, restaurant)
+            transaction.set(ratingRef, rating)
+
+            null
+        }
     }
 
     private fun hideKeyboard() {
